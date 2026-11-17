@@ -113,6 +113,8 @@ def integrity_check(pr: dict, base: dict, spec: dict, base_spec: dict | None = N
                     problems.append(f"metric {bm['id']} dropped its max cap {bth['max']}")
                 if "max" in bth and "max" in pth and pth["max"] > bth["max"]:
                     problems.append(f"metric {bm['id']} max loosened {bth['max']} -> {pth['max']}")
+                if "max_increase" in bth and "max_increase" not in pth:
+                    problems.append(f"metric {bm['id']} dropped its max_increase cap")
                 if "max_increase" in bth and pth.get("max_increase", 0) > bth["max_increase"]:
                     problems.append(f"metric {bm['id']} max_increase loosened {bth['max_increase']} -> {pth.get('max_increase')}")
                 if bth.get("no_significant_drop") and not pth.get("no_significant_drop"):
