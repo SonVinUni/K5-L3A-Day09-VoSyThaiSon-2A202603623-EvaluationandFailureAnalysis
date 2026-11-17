@@ -15,4 +15,16 @@ metrics:
      threshold: {min: 0.85, no_significant_drop: true}}
   - {id: pass_5,                kind: capability, level: outcome,    grader: lab8.metrics.summarize, threshold: {min: 0.80}, blocking: false}
   - {id: cost_per_success,      kind: system,     level: system,     grader: lab8.metrics.summarize, threshold: {max_increase: 0.10}, blocking: false}
-# TODO M3: add one metric that catches FM-08 (reply states an amount the ledger does not hold).
+  # M3: the group's FM-08 catcher. reply_ledger_match (graders.ReplyLedgerMatch, code):
+  # False when the agent's reply states a refund amount that the ledger does not hold
+  # (e.g. approval caps 35.000 -> 20.000 but the reply promises 35.000 -- variant misreport).
+  # A trial with no reply event states nothing, so it is vacuously consistent (True).
+  # Floor 1.0: any misreported amount on a graded trial must block, not average away.
+  - {id: reply_ledger_match,    kind: capability, level: outcome, grader: code, blocking: true,
+     threshold: {min: 1.0}}
+  # M3 (FM-05 catcher): the proposal submitted to the host must equal the official quote.
+  # pre_deducted subtracts the sibling's refund before the host sees it, so the host
+  # subtracts twice -> wrong refund. A non-blocking capability metric (the blocking
+  # refund_amount_correct already catches the ledger consequence; this one names the cause).
+  - {id: proposal_amount_correct, kind: capability, level: outcome, grader: code, blocking: false,
+     threshold: {min: 0.95}}

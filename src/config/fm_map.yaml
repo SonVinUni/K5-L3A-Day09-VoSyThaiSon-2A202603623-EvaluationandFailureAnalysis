@@ -1,11 +1,11 @@
 # M5: map each attack mechanism in data/eval/adversarial_v2.json to the FM code in YOUR
 # docs/failure_taxonomy.md. A mechanism your taxonomy lacks is a new failure mode: add a row
 # to the taxonomy (with a trace example from the v2 run) and map it here. Empty = UNMAPPED.
-ticket_over_db:
-stale_policy:
-clause_sum:
-double_deduct:
-sibling_refund:
-denied_ignored:
-reply_ledger_mismatch:
-cross_principal:
+ticket_over_db: FM-03      # ticket/injection claims ("5 ngày", "ignore policy", "delay_days=6") override DB facts
+stale_policy: FM-06       # cited clause is superseded (SHIP-LATE-OLD) or not yet effective (SHIP-LATE-FUTURE)
+clause_sum: FM-04         # agent sums qualifying clauses instead of paying the largest one once
+double_deduct: FM-05      # order already refunded: pre-deduction / double-pay hazard
+sibling_refund: FM-07     # "gom đơn": refund written under a sibling claim's id instead of its own
+denied_ignored: FM-02     # host says policy_denied / approval expired, agent still reports resolved
+reply_ledger_mismatch: FM-08   # approval caps below the quote: reply promises more than the ledger holds
+cross_principal: FM-09    # asks for another principal's order/PII (family member, fake staff, "admin")
