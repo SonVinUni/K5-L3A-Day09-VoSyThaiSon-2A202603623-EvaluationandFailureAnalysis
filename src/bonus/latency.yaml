@@ -1,0 +1,17 @@
+# Mô phỏng độ trễ thời gian thực (Latency tính bằng mili-giây ms)
+# Dùng để tính toán Critical Path DAG mà không dùng time.sleep()
+
+model_calls:
+  draft: 250
+  peer: 300
+  parse: 150
+
+tools:
+  get_claim_view: 20
+  lookup_order: 45
+  lookup_policy: 35
+  lookup_refund_history: 40
+  compute_compensation: 25
+  issue_refund: 60
+
+jitter_pct: 0.10  # Dao động 10% theo seed

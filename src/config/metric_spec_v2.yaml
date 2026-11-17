@@ -16,10 +16,28 @@ metrics:
      threshold: {min: 0.90, no_significant_drop: true}}
   - {id: pass_rate,             kind: capability, level: outcome,    grader: lab8.metrics.trial_pass, blocking: true,
      threshold: {min: 0.85, no_significant_drop: true}}
-  # TODO M6: add a blocking pass_hat_5 metric. Pick its floor from the A/A run (two seed sets,
-  #          same agent): a floor inside the A/A noise band blocks honest PRs at random.
+  # M6: blocking pass^5 floor. Picked from the A/A run `lab9.mutation --aa 66,77,88,99,110`:
+  # on MockLLM every metric's A/A delta is 0.0 (noise band = 0), baseline swarm pass_hat_5 = 0.8929,
+  # flaky_regression (bug on 1/5 seeds) drops it to 0.5714. Floor 0.8 sits OUTSIDE the A/A band
+  # (>= 0.8 as the rubric requires) and still lets honest PRs through: fixed/honest_refactor = 1.0.
+  # With a real LLM the A/A band would be > 0 and the floor would have to sit below its lower edge.
+  - {id: pass_hat_5,            kind: capability, level: outcome,    grader: code, blocking: true,
+     threshold: {min: 0.8}}
   - {id: cost_per_success,      kind: system,     level: system,     grader: lab8.metrics.summarize, threshold: {max_increase: 0.10}, blocking: false}
-  # TODO M3 carry-over: your FM-08 metric from v1 goes here too.
+  # M3 carry-over: the FM-08 catcher from v1 -- a reply promising an amount the ledger does not
+  # hold (approval caps below the quote: C-008, C-109, C-112) must block on every graded trial.
+  - {id: reply_ledger_match,    kind: capability, level: outcome,    grader: code, blocking: true,
+     threshold: {min: 1.0}}
+  # M3 carry-over (FM-05 catcher): proposal submitted to the host must equal the official quote.
+  # Non-blocking: its ledger consequence is already blocked by refund_amount_correct; this one
+  # names the cause (pre-deducted / rounded quote) for the scorecard's detection rate.
+  - {id: proposal_amount_correct, kind: capability, level: outcome, grader: code, blocking: false,
+     threshold: {min: 0.95}}
 slices:
-  # TODO M5: add at least money_movement and adversarial. Example of the shape:
-  - {name: denial, metric: pass_rate, min: 0.90, no_significant_drop: true, blocking: true}
+  # M5: an average can hide a regression on a small, important slice. Floors chosen from the
+  # baseline swarm v2 run (money_movement 1.0, adversarial 0.9714, denial 0.9455) and checked
+  # against the variants: slice_regression (money 0.85) and any money-only slice regression the
+  # hidden grader uses must fall below 0.90, while fixed / honest_refactor hold 1.0 on all slices.
+  - {name: money_movement, metric: pass_rate, min: 0.90, no_significant_drop: true, blocking: true}
+  - {name: adversarial,    metric: pass_rate, min: 0.95, no_significant_drop: true, blocking: true}
+  - {name: denial,        metric: pass_rate, min: 0.90, no_significant_drop: true, blocking: true}
